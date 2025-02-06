@@ -34,7 +34,7 @@ PubSubClient mqtt(espClient);
 //###############################################
 //#        DO NOT MODIFY ANY CODE BELOW         # 
 //###############################################
-
+// Except I had to because part is evidently not working :(
 
 //*********************************************************************************************
 //                                       MQTT SETUP                                           *
@@ -92,9 +92,9 @@ void MQTT_ConnectFunction( void ) {
   xReturned = xTaskCreatePinnedToCore(
                 MQTT_Connect,     /* Function that implements the task. */
                 "MQTT CONNECT",    /* Text name for the task. */
-                2048,                     /* Stack size (Bytes in ESP32, words in Vanilla FreeRTOS) */
+                4096,                     /* Stack size (Bytes in ESP32, words in Vanilla FreeRTOS) */ //Had to change this too
                 ( void * ) 1,             /* Parameter passed into the task. */
-                8,                        /* Priority at which the task is created. */
+                8,                        /* Priority at which the tasMQTT_ConnectFunctionk is created. */
                 &xMQTT_Connect,    /* Used to pass out the created task's handle. */
                 1);                       /* ESP Core to run task on. */
 
@@ -180,7 +180,6 @@ void checkHEAP(const char* Name){
 
 
 void initialize(void){
-  vNTPFunction();     // INIT NTP PROTOCOL FOR TIME KEEPING   
 
   //CONNECT TO WIFI
   Serial.printf("Connecting to %s \n", ssid);
@@ -195,6 +194,7 @@ void initialize(void){
    
   initMQTT();          // INIT MQTT  
   vUpdateFunction();
+  vNTPFunction();     // INIT NTP PROTOCOL FOR TIME KEEPING   //Had to move this
    
 }
 

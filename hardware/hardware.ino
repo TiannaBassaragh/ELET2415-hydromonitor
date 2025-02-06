@@ -43,8 +43,7 @@
 #define DHTTYPE DHT22
 
 #define NUM_LEDS 7
-#define DATA_PIN 0
-// #define CLOCK_PIN 4
+#define LED_PIN 0
 
 
 
@@ -108,7 +107,7 @@ void setup() {
 
   // INITIALIZE ALL SENSORS AND DEVICES
   dht.begin();
-  FastLED.addLeds<WS2812, DATA_PIN, RGB>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812, LED_PIN, RGB>(leds, NUM_LEDS);
 
   /* Add all other necessary sensor Initializations and Configurations here */
 
@@ -151,10 +150,10 @@ void vUpdate( void * pvParameters )  {
           // #######################################################
    
           // 1. Read Humidity and save in variable below
-          double h = 0;
+          float h = dht.readHumidity();
            
           // 2. Read temperature as Celsius   and save in variable below
-          double t = 0;    
+          float t = dht.readTemperature();
  
 
           if(isNumber(t)){
@@ -168,6 +167,10 @@ void vUpdate( void * pvParameters )  {
               
               // 3. Add key:value pairs to JSon object based on above schema
               doc["id"] = "620162297";
+              doc["timestamp"] = getTimeStamp();
+              doc["temperature"] = t;
+              doc["humidity"] = h;
+              doc["heatindex"] = calcHeatIndex(t, h);
 
               // 4. Seralize / Covert JSon object to JSon string and store in message array
               serializeJson(doc, message);
@@ -176,6 +179,13 @@ void vUpdate( void * pvParameters )  {
               if (mqtt.connected()){
                 publish(pubtopic, message);
               }             
+
+            Serial.print("Humidity: ");
+            Serial.println(h);
+            Serial.print("Temp: ");
+            Serial.println(t); 
+            Serial.print("Heat Index: ");     
+            Serial.println(calcHeatIndex(t,h));
 
           }
 
@@ -282,7 +292,7 @@ double convert_fahrenheit_to_Celsius(double f){
 
 double calcHeatIndex(double Temp, double Humid){
     // CALCULATE AND RETURN HEAT INDEX USING EQUATION FOUND AT https://byjus.com/heat-index-formula/#:~:text=The%20heat%20index%20formula%20is,an%20implied%20humidity%20of%2020%25
-  double HI = (-42.379 + (-2.04901523*Temp) + (-10.14333127*Humid) + (-0.22475541*Temp*Humid) + (-0.00683783*Temp*Temp) + (-.05481717*Humid*Humid) + (-0.00122874*Temp*Temp*Humid) + (0.00085282*Temp*Humid*Humid) + (-0.00000199*Temp*Temp*Humid*Humid));
+  double HI = (-42.379 + (2.04901523*Temp) + (10.14333127*Humid) + (-0.22475541*Temp*Humid) + (-0.00683783*Temp*Temp) + (-0.05481717*Humid*Humid) + (0.00122874*Temp*Temp*Humid) + (0.00085282*Temp*Humid*Humid) + (-0.00000199*Temp*Temp*Humid*Humid));
   return HI;
 }
  

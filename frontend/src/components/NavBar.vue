@@ -13,6 +13,9 @@
                             </RouterLink>
 
                             <!-- Add Links Below -->
+                            <RouterLink class="route" to="/control">
+                                <VBtn class="text-subtitle-2" density="compact" color="primary" :variant="(route.name == 'Control')? 'tonal':'text'">Control</VBtn>
+                            </RouterLink>
                                                                          
 
                         </VCol>
